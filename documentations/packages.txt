@@ -1,5 +1,0 @@
-torch - conda
-albumentations - conda
-jupyter - conda
-tensorboardX - conda
-numpy - conda
