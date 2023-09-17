@@ -1,2 +1,3 @@
-# Aletheia Version 1.0
+# SyntheticEye
 - Advanced AI-Face detector
+<img src="assets/Logo.png" alt="SyntheticEye Logo" width="200"/>
