@@ -6,3 +6,4 @@ matplotlib==3.7.1
 numpy==1.25.2
 tensorboardX==2.6.2
 codecarbon==2.3.1
+tqdm==4.66.1
