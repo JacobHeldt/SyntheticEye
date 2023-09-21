@@ -82,3 +82,33 @@ def plot_image_dimensions(img_dir, heading='Image Dimensions', save_as=None, alp
         plt.savefig(save_as)
     else:
         plt.show()
+
+def unnormalize(img, mean, std):
+    """
+    Unnormalize an image tensor
+    """
+    img = img.clone()  # Ensure original image tensor isn't modified
+    for t, m, s in zip(img, mean, std):
+        t.mul_(s).add_(m)
+    return img
+
+def show_img(dataloader, class_names, mean, std, num_images=24):
+    """Display a grid of images from a dataloader with their labels"""
+
+    # Get batch of images with labels from dataloader
+    images, labels = next(iter(dataloader))
+    
+    fig, axes = plt.subplots(3, 3, figsize=(10, 10), 
+                             subplot_kw={'xticks':[], 'yticks':[], 'frame_on':False})
+    
+    # Add spacing between the images
+    fig.subplots_adjust(hspace=0.5, wspace=0.5)
+    
+    # Iterate over each axis in order to display images and associated labels
+    for ax, img, lbl in zip(axes.ravel(), images, labels): 
+        img = unnormalize(img, mean, std)
+        img = img.numpy().transpose((1, 2, 0))
+        ax.imshow(img)
+        ax.set_title(class_names[lbl])
+    
+    plt.show()
