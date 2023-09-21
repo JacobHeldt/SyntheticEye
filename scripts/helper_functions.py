@@ -6,9 +6,11 @@ from tqdm import tqdm
 from PIL import Image
 import numpy as np
 from torch.utils.data import DataLoader, random_split, Dataset
-
+import os
+import matplotlib.pyplot as plt
 from image_loader_dataset import ImageLoaderDataset
-        
+
+
 def get_image_mean_std(dataset_path, device='cuda', batch_size=512):
     """
     Compute the mean and standard deviation of images in the given dataset path.
@@ -50,3 +52,33 @@ def get_image_mean_std(dataset_path, device='cuda', batch_size=512):
 
     # Return mean and standard deviation of the images
     return mean, std
+
+
+def plot_image_dimensions(img_dir, heading='Image Dimensions', save_as=None, alpha=0.1):
+    """
+    Plot the dimensions of images in a directory using a scatter plot.
+    """
+    
+    # Getting all images in the directory
+    img_files = [f for f in os.listdir(img_dir) if f.lower().endswith(('jpeg', 'jpg', 'png', 'webp'))]
+
+    widths = []
+    heights = []
+
+    # Loop through each image and extract its dimensions
+    for img_file in img_files:
+        with Image.open(os.path.join(img_dir, img_file)) as img:
+            width, height = img.size
+            widths.append(width)
+            heights.append(height)
+
+    # Plot the dimensions of the images in a scatter plot
+    plt.scatter(widths, heights, alpha=alpha)
+    plt.title(heading)
+    plt.xlabel('Width')
+    plt.ylabel('Height')
+    
+    if save_as:
+        plt.savefig(save_as)
+    else:
+        plt.show()
