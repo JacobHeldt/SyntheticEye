@@ -1,0 +1,52 @@
+# helper_functions.py
+import torch
+from torchvision import transforms
+from torchvision.datasets import ImageFolder
+from tqdm import tqdm
+from PIL import Image
+import numpy as np
+from torch.utils.data import DataLoader, random_split, Dataset
+
+from image_loader_dataset import ImageLoaderDataset
+        
+def get_image_mean_std(dataset_path, device='cuda', batch_size=512):
+    """
+    Compute the mean and standard deviation of images in the given dataset path.
+    Return a tuple containing mean and standard deviation of dataset.
+    """
+
+    # Define image transforms (Resize images and convert them to tensors)
+    image_transforms = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor()
+    ])
+
+    # Get image paths and labels from ImageFolder
+    img_folder = ImageFolder(root=dataset_path)
+    img_paths = [item[0] for item in img_folder.imgs]
+    labels = [item[1] for item in img_folder.imgs]
+
+    # Create dataset with transforms
+    image_dataset = ImageLoaderDataset(img_paths=img_paths, label_list=labels, transform=image_transforms)
+
+    data_loader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+
+    # Initialize variables
+    mean = 0.
+    std = 0.
+    sample_count = 0.
+
+    # Loop through dataset to compute mean and standard deviation
+    for data, _ in tqdm(data_loader):
+        data = data.to(device)  
+        batch_samples = data.size(0)
+        data = data.view(batch_samples, data.size(1), -1)
+        mean += data.mean(2).sum(0).cpu()  
+        std += data.std(2).sum(0).cpu()  
+        sample_count += batch_samples
+
+    mean /= sample_count
+    std /= sample_count
+
+    # Return mean and standard deviation of the images
+    return mean, std

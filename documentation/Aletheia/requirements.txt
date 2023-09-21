@@ -7,3 +7,4 @@ numpy==1.25.2
 tensorboardX==2.6.2
 codecarbon==2.3.1
 tqdm==4.66.1
+netron==7.1.9
