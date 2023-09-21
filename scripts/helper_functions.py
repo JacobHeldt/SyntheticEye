@@ -112,3 +112,41 @@ def show_img(dataloader, class_names, mean, std, num_images=24):
         ax.set_title(class_names[lbl])
     
     plt.show()
+
+
+def check_accuracy(data_loader, model, device):
+    """
+    Calculate and print accuracy of the model on a given DataLoader
+    """
+
+    print(type(data_loader))
+    correct = 0
+    samples = 0
+
+    # Set model to evaluation mode.
+    model.eval()
+
+    # Ensure no gradients are being computed during evaluation
+    with torch.inference_mode():
+        for x, y in tqdm(data_loader):
+
+            # Move the data and labels to the appropriate device
+            x = x.to(device=device)
+            y = y.to(device=device)
+
+            # Make predictions with the model
+            scores = model(x)
+
+            # Convert logits to predictions
+            preds = (torch.sigmoid(scores) > 0.45).squeeze(1).long()  # The model generally perfomed better on real world problems with a threshold of 0.45
+
+            # Update counters based on models predictions
+            correct += (preds == y).sum().item()
+            samples += preds.size(0)
+
+        print(f'Got {correct} / {samples} correct with an accuracy of {float(correct)/float(samples)*100:.2f}%')
+
+    # Set model back to train mode
+    model.train()
+
+    return correct, samples
