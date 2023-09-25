@@ -114,7 +114,7 @@ def show_img(dataloader, class_names, mean, std, num_images=24):
     plt.show()
 
 
-def check_accuracy(data_loader, model, device):
+def check_accuracy(data_loader, model, device, threshold=0.5):
     """
     Calculate and print accuracy of the model on a given DataLoader
     """
@@ -138,7 +138,7 @@ def check_accuracy(data_loader, model, device):
             scores = model(x)
 
             # Convert logits to predictions
-            preds = (torch.sigmoid(scores) > 0.45).squeeze(1).long()  # The model generally perfomed better on real world problems with a threshold of 0.45
+            preds = (torch.sigmoid(scores) > threshold).squeeze(1).long()  # The model generally perfomed better on real world problems with a threshold of 0.45
 
             # Update counters based on models predictions
             correct += (preds == y).sum().item()
@@ -150,3 +150,67 @@ def check_accuracy(data_loader, model, device):
     model.train()
 
     return correct, samples
+
+
+def predict_single_image(img_path, model, transforms, device='cuda'):
+    """
+    Predicts the label for a single image using trained model.
+    """
+    
+    # Load image
+    img = Image.open(img_path).convert("RGB")
+
+    # Apply combined transforms
+    img_tensor = transforms(img).unsqueeze(0).to(device)
+
+    # Set model to evaluation mode and predict image
+    model.eval()
+    with torch.inference_mode():
+        scores = model(img_tensor)
+        probability = torch.sigmoid(scores).squeeze().item()
+
+    # Set the model back to training mode
+    model.train()
+
+    # Return computed probability
+    return probability
+
+
+def display_folder_images(folder, model, combined_transforms, num_images=50, device='cuda'):
+    """
+    Display images from a parent folder along with their correct label and predicted probability.
+    This helps us to understand the model
+    """
+    
+    # Possible classes of images
+    classes = ['real', 'fake']
+    images = []
+
+    # Iterate through classes and get image paths
+    for label in classes:
+        class_folder = os.path.join(folder, label)
+        # Collect every image file path from the current class directory
+        img_files = [os.path.join(class_folder, f) for f in os.listdir(class_folder) if os.path.isfile(os.path.join(class_folder, f))]
+        # Append to all_images list with their label
+        images.extend([(img, label) for img in img_files[:num_images]])
+
+    # Initialize grid of subplots to display imagestra
+    fig, axis = plt.subplots(5, len(images) // 5, figsize=(25, 15))
+
+    # Display each image with label and predicted probability
+    for i, (img_path, correct_label) in enumerate(images):
+        # Get predicted probability
+        predicted_probability = predict_single_image(img_path, model, combined_transforms)
+        
+        # Load image with PIL
+        img = Image.open(img_path)
+
+        # Display image
+        row = i // (len(images) // 5)  
+        column = i % (len(images) // 5) 
+        axis[row, column].imshow(img)
+        axis[row, column].set_title(f"Correct: {correct_label}\nPred: {predicted_probability:.3f}")
+        axis[row, column].axis("off")
+    
+    plt.tight_layout()
+    plt.show()
