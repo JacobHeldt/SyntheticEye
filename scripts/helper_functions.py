@@ -94,23 +94,26 @@ def unnormalize(img, mean, std):
 
 def show_img(dataloader, class_names, mean, std, num_images=24):
     """Display a grid of images from a dataloader with their labels"""
-
     # Get batch of images with labels from dataloader
     images, labels = next(iter(dataloader))
-    
-    fig, axes = plt.subplots(3, 3, figsize=(10, 10), 
+
+    fig, axes = plt.subplots(3, 3, figsize=(10, 10),
                              subplot_kw={'xticks':[], 'yticks':[], 'frame_on':False})
-    
-    # Add spacing between the images
+
+    # Add spacing between images
     fig.subplots_adjust(hspace=0.5, wspace=0.5)
-    
-    # Iterate over each axis in order to display images and associated labels
-    for ax, img, lbl in zip(axes.ravel(), images, labels): 
-        img = unnormalize(img, mean, std)
+
+    # Iterate over each axis to display images and labels
+    for ax, img, lbl in zip(axes.ravel(), images, labels):
+        # Unnormalize image
+        for i in range(3):
+            img[i] = img[i] * std[i] + mean[i] 
         img = img.numpy().transpose((1, 2, 0))
-        ax.imshow(img)
+        img = np.clip(img, 0, 1)  # Ensure values are between 0 and 1
+        img = img * 255.0  # Scale the pixel values back to [0, 255] for displaying
+        ax.imshow(img.astype(np.uint8))  # Convert to uint8 and display
         ax.set_title(class_names[lbl])
-    
+
     plt.show()
 
 
