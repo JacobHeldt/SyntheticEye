@@ -18,15 +18,17 @@ We are continuously working on developing new models that are able to detect mor
 - Audio Detection
 - Video Detection
 
-## Potential
+## Vision
 With our models, we want to provide everybody with reliable, free, and user-friendly tools that help them detect AI-Generated Content. Our models help to verify content and detect misinformation. With the rapid advancements of generative AI, tools like ours become essential to preserve trust.
 
 ## Repository Structure
-- **assets/**: Images for the project.
+- **assets/**: Storage for project-related images.
 - **notebooks/**: Jupyter notebooks for our models.
-  - **runs/**: Contains logs from the notebooks run. These are not included in the repo, to ensure a lightweight repository.
+  - **runs/**: Stores logs from notebooks. These are not included in the repo, to ensure a lightweight repository.
 - **scripts/**: Contains primarily helper functions.
 - **state_dicts/**: Here we store our models state_dicts temporarily. They are not included in the repo, due to their large file size.
-- **documentation**: Contains requirements for our models.
+- **documentation**: Contains model-specific requirements
   - **Aletheia**: Requirements for Aletheia.
   - **Argus** Requirements for Argus.
+
+Test our models on our website at [syntheticeye.dev](https://syntheticeye.dev/)
