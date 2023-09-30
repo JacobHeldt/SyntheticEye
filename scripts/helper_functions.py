@@ -117,7 +117,7 @@ def show_img(dataloader, class_names, mean, std, num_images=24):
     plt.show()
 
 
-def check_accuracy(data_loader, model, device, threshold=0.5):
+def check_accuracy(data_loader, model, device='cuda', threshold=0.5):
     """
     Calculate and print accuracy of the model on a given DataLoader
     """
@@ -141,7 +141,7 @@ def check_accuracy(data_loader, model, device, threshold=0.5):
             scores = model(x)
 
             # Convert logits to predictions
-            preds = (torch.sigmoid(scores) > threshold).squeeze(1).long()  # The model generally perfomed better on real world problems with a threshold of 0.45
+            preds = (torch.sigmoid(scores) > threshold).squeeze(1).long()  # Aletheia generally performs better on real world problems with a threshold of 0.3
 
             # Update counters based on models predictions
             correct += (preds == y).sum().item()
