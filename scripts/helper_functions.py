@@ -105,7 +105,7 @@ def show_img(dataloader, class_names, mean, std, num_images=24):
 
     # Iterate over each axis to display images and labels
     for ax, img, lbl in zip(axes.ravel(), images, labels):
-        # Unnormalize image
+        # Unnormalize image for displaying
         for i in range(3):
             img[i] = img[i] * std[i] + mean[i] 
         img = img.numpy().transpose((1, 2, 0))
@@ -157,7 +157,7 @@ def check_accuracy(data_loader, model, device, threshold=0.5):
 
 def predict_single_image(img_path, model, transforms, device='cuda'):
     """
-    Predicts the label for a single image using trained model.
+    Predicts the label for a single image using the trained model.
     """
     
     # Load image
@@ -197,7 +197,7 @@ def display_folder_images(folder, model, combined_transforms, num_images=50, dev
         # Append to all_images list with their label
         images.extend([(img, label) for img in img_files[:num_images]])
 
-    # Initialize grid of subplots to display imagestra
+    # Initialize grid of subplots to display images
     fig, axis = plt.subplots(5, len(images) // 5, figsize=(25, 15))
 
     # Display each image with label and predicted probability
