@@ -6,6 +6,7 @@ SyntheticeEye is developing free-to-use and reliable detectors for AI-generated 
 
 ## Models
 ### Aletheia
+![Aletheia Visualization](assets/Aletheia.png)
 Aletheia is a machine learning model designed to detect AI-generated faces and distinguish them from real faces. This model can be used on our [website](syntheticeye.dev). Aletheia has achieved high accuracy in detecting images from various face generators, but we are still working on improving this model further and making it more robust.
 
 ### Argus
