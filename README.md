@@ -7,13 +7,14 @@ SyntheticeEye is developing free and reliable detectors for AI-generated content
 ## Models
 ### Aletheia
 ![Aletheia Visualization](assets/Aletheia.png)
-Aletheia is a machine learning model designed to detect AI-generated faces and distinguish them from real faces. This model can be used on our [website](syntheticeye.dev). Aletheia has achieved high accuracy in detecting images from various face generators, but we are still working on improving this model further and making it more robust.
+Aletheia is a machine learning model designed to detect AI-generated faces and distinguish them from real faces. This model can be used on our [website](https://syntheticeye.dev/#/aletheia). Aletheia has achieved high accuracy in detecting images from various face generators, but we are still working on improving this model further and making it more robust.
 
-### Argus (Beta)
-We are currently developing Argus, a detector for AI-generated images in general. This model aims to detect a broad spectrum of AI-generated images. The Beta-Version of Argus can be tested on our [website](syntheticeye.dev)
+### Argus
+![Argus Visualization](assets/Argus.png)
+Argus is our detector for AI-generated images in general. This model aims to detect a broad spectrum of AI-generated images. Argus can be tested on our [website](https://syntheticeye.dev/#/argus)
 
 ### Future Models
-We are continuously working on developing new models that are able to detect more types of content. These are a few detectors we plan to develop in the future:
+We are working on developing models, that are able to detect more types of content. These are a few detectors we want to develop in the future:
 - Text Detection
 - Audio Detection
 - Video Detection
@@ -31,4 +32,7 @@ With our models, we want to provide everybody with reliable, free, and user-frie
   - **Aletheia**: Requirements for Aletheia.
   - **Argus** Requirements for Argus.
 
+
+## Tools
 Test our models on our website at [syntheticeye.dev](https://syntheticeye.dev/)
+Use our models directly in the browser with our [chrome extension](https://chromewebstore.google.com/detail/jhnehjooeiopekmlgcpmdmliifccjhlj)
