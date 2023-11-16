@@ -35,4 +35,5 @@ With our models, we want to provide everybody with reliable, free, and user-frie
 
 ## Tools
 Test our models on our website at [syntheticeye.dev](https://syntheticeye.dev/)
+
 Use our models directly in the browser with our [chrome extension](https://chromewebstore.google.com/detail/jhnehjooeiopekmlgcpmdmliifccjhlj)
