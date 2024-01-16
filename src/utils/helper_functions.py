@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader, random_split, Dataset
 import os
 import matplotlib.pyplot as plt
 from image_loader_dataset import ImageLoaderDataset
+from collections import Counter
 
 
 def get_image_mean_std(dataset_path, device='cuda', batch_size=512):
@@ -82,6 +83,88 @@ def plot_image_dimensions(img_dir, heading='Image Dimensions', save_as=None, alp
         plt.savefig(save_as)
     else:
         plt.show()
+
+
+def categorize_dimension(dimension, categories):
+    for i, (lower_bound, upper_bound) in enumerate(categories):
+        if lower_bound <= dimension <= upper_bound:
+            return i
+    return len(categories)
+
+def plot_image_dimensions_bar_graph(img_dir, heading='Image Dimensions'):
+    # Define categories for width and height
+    width_categories = [(0, 64), (65, 128), (129, 192), (193, 256), (257, 320), (312, 384), (385, 448), (449, 512), (513, 576), (577, 640), (641, 704), (705, 768), (769, 832), (833, 896), (834, 960), (961, 1024), (1025, 1088), (1089, 1152), (1089, 1152), (1153, 1216), (1217, 1280)] 
+    height_categories = [(0, 64), (65, 128), (129, 192), (193, 256), (257, 320), (312, 384), (385, 448), (449, 512), (513, 576), (577, 640), (641, 704), (705, 768), (769, 832), (833, 896), (834, 960), (961, 1024), (1025, 1088), (1089, 1152), (1089, 1152), (1153, 1216), (1217, 1280)] 
+
+    # Dictionaries to store resolutions categories
+    width_dimensions = Counter()
+    height_dimensions = Counter()
+
+    # Get a list of files
+    files = [f for f in os.listdir(img_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))]
+
+    # Loop through files in directory
+    for file_name in tqdm(files, desc="Processing images"):
+        file_path = os.path.join(img_dir, file_name)
+        with Image.open(file_path) as img:
+            width_category = categorize_dimension(img.width, width_categories)
+            height_category = categorize_dimension(img.height, height_categories)
+
+            # Update the dimensions count
+            width_dimensions[width_category] += 1
+            height_dimensions[height_category] += 1
+
+    # Prepare data for the bar graph
+    categories = range(max(len(width_categories), len(height_categories)))
+    width_values = [width_dimensions[i] for i in categories]
+    height_values = [height_dimensions[i] for i in categories]
+
+    # Plotting
+    plt.figure(figsize=(12, 6))
+    bar_width = 0.35
+    index = np.arange(len(categories))
+
+    plt.bar(index, height_values, bar_width, label='Height', color='blue')
+    plt.bar(index + bar_width, width_values, bar_width, label='Width', color='orange')
+
+    # Create custom labels for the x-axis
+    custom_labels = [f'{w[0]}-{w[1]} px' for w in width_categories]
+
+    plt.xlabel('Pixel Ranges')
+    plt.ylabel('Number of Images')
+    plt.title(heading)
+    plt.xticks(index + bar_width / 2, custom_labels, rotation=45)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_class_distribution(img_dir, heading='Class Distribution'):
+    # Counter for class distribution
+    class_distribution = Counter()
+
+    # Get a list of classes
+    classes = [d for d in os.listdir(img_dir) if os.path.isdir(os.path.join(img_dir, d))]
+    
+    # Count images per class
+    for class_name in tqdm(classes, desc="Counting images per class"):
+        class_path = os.path.join(img_dir, class_name)
+        num_images = len([f for f in os.listdir(class_path) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))])
+        class_distribution[class_name] = num_images
+
+    labels = class_distribution.keys()
+    values = class_distribution.values()
+
+    # Plotting
+    plt.figure(figsize=(8, 6))
+    plt.bar(labels, values, color='blue')
+    plt.xlabel('Class Name')
+    plt.ylabel('Number of Images')
+    plt.title(heading)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
 
 def unnormalize(img, mean, std):
     """
