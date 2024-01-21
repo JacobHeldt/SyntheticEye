@@ -238,6 +238,34 @@ def check_accuracy(data_loader, model, device='cuda', threshold=0.5):
     return correct, samples
 
 
+def check_accuracy_aletheia4(data_loader, model, device='cuda'):
+    correct = 0
+    samples = 0
+    batch_count = 0
+
+    model.eval()
+    with torch.inference_mode():
+        for x, y in tqdm(data_loader):
+            x = x.to(device=device)
+            y = y.to(device=device)
+
+            scores = model(x)
+            _, preds = scores.max(1)
+
+            correct += (preds == y).sum().item()
+            samples += preds.size(0)
+            batch_count += 1
+
+            if batch_count % 100 == 0:
+                current_accuracy = float(correct) / float(samples) * 100
+                print(f'Current accuracy after {batch_count} batches: {current_accuracy:.2f}%')
+
+        print(f'Final accuracy: {float(correct)/float(samples)*100:.2f}%')
+
+    model.train()
+    return correct, samples
+
+
 def predict_single_image(img_path, model, transforms, device='cuda'):
     """
     Predicts the label for a single image using the trained model.
