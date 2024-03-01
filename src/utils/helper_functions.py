@@ -18,7 +18,7 @@ def get_image_mean_std(dataset_path, device='cuda', batch_size=512):
     Return a tuple containing mean and standard deviation of dataset.
     """
 
-    # Define image transforms (Resize images and convert them to tensors)
+    # Define image transforms 
     image_transforms = transforms.Compose([
         transforms.Resize((256, 256)),
         transforms.ToTensor()
@@ -139,6 +139,52 @@ def plot_image_dimensions_bar_graph(img_dir, heading='Image Dimensions'):
     plt.show()
 
 
+def plot_total_image_dimensions_bar_graph(img_dir, heading='Image Dimensions'):
+    width_categories = [(0, 64), (65, 128), (129, 192), (193, 256), (257, 320), (312, 384), (385, 448), (449, 512), (513, 576), (577, 640), (641, 704), (705, 768), (769, 832), (833, 896), (834, 960), (961, 1024), (1025, 1088), (1089, 1152), (1153, 1216), (1217, 1280)] 
+    height_categories = width_categories  
+    
+    width_dimensions = Counter()
+    height_dimensions = Counter()
+
+    for root, dirs, files in os.walk(img_dir):
+        for file_name in tqdm(files, desc="Processing images"):
+            if file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                file_path = os.path.join(root, file_name)
+                with Image.open(file_path) as img:
+                    width_category = categorize_dimension(img.width, width_categories)
+                    height_category = categorize_dimension(img.height, height_categories)
+
+                    width_dimensions[width_category] += 1
+                    height_dimensions[height_category] += 1
+
+    categories = range(max(len(width_categories), len(height_categories)))
+    width_values = [width_dimensions.get(i, 0) for i in categories]
+    height_values = [height_dimensions.get(i, 0) for i in categories]
+
+    plt.figure(figsize=(12, 6))
+    bar_width = 0.35
+    index = np.arange(len(categories))
+
+    plt.bar(index, height_values, bar_width, label='Height', color='blue')
+    plt.bar(index + bar_width, width_values, bar_width, label='Width', color='orange')
+
+    custom_labels = [f'{w[0]}-{w[1]} px' for w in width_categories]
+
+    plt.xlabel('Pixel Ranges')
+    plt.ylabel('Number of Images')
+    plt.title(heading)
+    plt.xticks(index + bar_width / 2, custom_labels, rotation=45)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+def categorize_dimension(dimension, categories):
+    for i, (low, high) in enumerate(categories):
+        if low <= dimension <= high:
+            return i
+    return len(categories)
+
+
 def plot_class_distribution(img_dir, heading='Class Distribution'):
     # Counter for class distribution
     class_distribution = Counter()
@@ -170,14 +216,14 @@ def unnormalize(img, mean, std):
     """
     Unnormalize an image tensor
     """
-    img = img.clone()  # Ensure original image tensor isn't modified
+    img = img.clone() 
     for t, m, s in zip(img, mean, std):
         t.mul_(s).add_(m)
     return img
 
 def show_img(dataloader, class_names, mean, std, num_images=24):
     """Display a grid of images from a dataloader with their labels"""
-    # Get batch of images with labels from dataloader
+    # Get batch of images with labels from dataloade
     images, labels = next(iter(dataloader))
 
     fig, axes = plt.subplots(3, 3, figsize=(10, 10),
@@ -192,9 +238,9 @@ def show_img(dataloader, class_names, mean, std, num_images=24):
         for i in range(3):
             img[i] = img[i] * std[i] + mean[i] 
         img = img.numpy().transpose((1, 2, 0))
-        img = np.clip(img, 0, 1)  # Ensure values are between 0 and 1
-        img = img * 255.0  # Scale the pixel values back to [0, 255] for displaying
-        ax.imshow(img.astype(np.uint8))  # Convert to uint8 and display
+        img = np.clip(img, 0, 1) 
+        img = img * 255.0 
+        ax.imshow(img.astype(np.uint8)) 
         ax.set_title(class_names[lbl])
 
     plt.show()
@@ -216,15 +262,14 @@ def check_accuracy(data_loader, model, device='cuda', threshold=0.5):
     with torch.inference_mode():
         for x, y in tqdm(data_loader):
 
-            # Move the data and labels to the appropriate device
+            # Move data and labels to the appropriate device
             x = x.to(device=device)
             y = y.to(device=device)
 
             # Make predictions with the model
             scores = model(x)
 
-            # Convert logits to predictions
-            preds = (torch.sigmoid(scores) > threshold).squeeze(1).long()  # Aletheia generally performs better on real world problems with a threshold of 0.3
+            preds = (torch.sigmoid(scores) > threshold).squeeze(1).long() 
 
             # Update counters based on models predictions
             correct += (preds == y).sum().item()
@@ -250,14 +295,14 @@ def check_accuracy_aletheia4(data_loader, model, device='cuda'):
             y = y.to(device=device)
 
             scores = model(x)
-            _, preds = scores.max(1)
+            _, preds = torch.max(scores.data, 1)
 
             correct += (preds == y).sum().item()
             samples += preds.size(0)
             batch_count += 1
 
             if batch_count % 100 == 0:
-                current_accuracy = float(correct) / float(samples) * 100
+                current_accuracy = 100 * correct / samples
                 print(f'Current accuracy after {batch_count} batches: {current_accuracy:.2f}%')
 
         print(f'Final accuracy: {float(correct)/float(samples)*100:.2f}%')
@@ -303,9 +348,7 @@ def display_folder_images(folder, model, combined_transforms, num_images=50, dev
     # Iterate through classes and get image paths
     for label in classes:
         class_folder = os.path.join(folder, label)
-        # Collect every image file path from the current class directory
         img_files = [os.path.join(class_folder, f) for f in os.listdir(class_folder) if os.path.isfile(os.path.join(class_folder, f))]
-        # Append to all_images list with their label
         images.extend([(img, label) for img in img_files[:num_images]])
 
     # Initialize grid of subplots to display images
@@ -313,7 +356,6 @@ def display_folder_images(folder, model, combined_transforms, num_images=50, dev
 
     # Display each image with label and predicted probability
     for i, (img_path, correct_label) in enumerate(images):
-        # Get predicted probability
         predicted_probability = predict_single_image(img_path, model, combined_transforms)
         
         # Load image with PIL
